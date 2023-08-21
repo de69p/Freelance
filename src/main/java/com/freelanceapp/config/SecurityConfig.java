@@ -4,38 +4,57 @@ import com.freelanceapp.security.JwtAuthenticationFilter;
 import com.freelanceapp.security.JwtAuthorizationFilter;
 import com.freelanceapp.services.CustomUserDetailsService;
 import com.freelanceapp.utils.JwtUtil;
-import jakarta.inject.Inject; // зміна тут
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.DefaultSecurityFilterChain;
-import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
+@EnableWebMvc
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
-
-    private final AuthenticationManager authenticationManager;
-
     private final CustomUserDetailsService customUserDetailsService;
 
+    @Autowired
+    public SecurityConfig(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
+        this.jwtUtil = jwtUtil;
+        this.customUserDetailsService = customUserDetailsService;
+    }
+
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(authenticationManager, jwtUtil);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorizeRequests ->
+                        authorizeRequests
+                                .requestMatchers(antMatcher("/api/auth/**")).permitAll()
+                                .requestMatchers(antMatcher("/user/**")).hasRole("USER")
+                                .requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN")
+                                .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtAuthenticationFilter(), JwtAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
+
+
+        return http.build();
+    }
+
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(authenticationManagerBean(), jwtUtil);
+        filter.setAuthenticationManager(authenticationManagerBean());
+        return filter;
     }
 
     @Bean
@@ -44,17 +63,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/api/auth/**")
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/user/**").hasRole("USER")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
-                .formLogin(withDefaults());
-
-        return http.build();
+    public AuthenticationManager authenticationManagerBean() {
+        return authentication -> (Authentication) authentication.getAuthorities().stream().findAny().orElse(null);
     }
-
 }

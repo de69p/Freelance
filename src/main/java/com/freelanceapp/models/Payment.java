@@ -1,5 +1,6 @@
 package com.freelanceapp.models;
 
+import com.freelanceapp.models.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,7 +16,7 @@ public class Payment {
 
     private Double amount;
 
-    private String status;
+    private PaymentStatus status;
 
     private Date paymentDate;
 
