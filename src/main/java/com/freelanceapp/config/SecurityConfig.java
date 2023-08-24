@@ -9,27 +9,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
-@EnableWebSecurity
-@EnableWebMvc
 public class SecurityConfig {
 
-    private final JwtUtil jwtUtil;
-    private final CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
-    public SecurityConfig(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
-        this.jwtUtil = jwtUtil;
-        this.customUserDetailsService = customUserDetailsService;
-    }
+    private CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -37,14 +29,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers(antMatcher("/api/auth/**")).permitAll()
-                                .requestMatchers(antMatcher("/user/**")).hasRole("USER")
-                                .requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN")
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/user/**")).hasRole("USER")
+                                .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter(), JwtAuthenticationFilter.class)
-                .addFilterAfter(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
-
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -52,10 +43,9 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(authenticationManagerBean(), jwtUtil);
-        filter.setAuthenticationManager(authenticationManagerBean());
-        return filter;
+        return new JwtAuthenticationFilter(authenticationManager(), jwtUtil);
     }
+
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
@@ -63,7 +53,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManagerBean() {
-        return authentication -> (Authentication) authentication.getAuthorities().stream().findAny().orElse(null);
+    public AuthenticationManager authenticationManager() {
+        return authentication -> authentication; // This is a simple implementation. Adjust as needed.
     }
+
 }

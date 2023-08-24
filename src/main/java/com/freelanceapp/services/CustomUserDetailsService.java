@@ -1,32 +1,66 @@
 package com.freelanceapp.services;
 
+import java.util.*;
+
 import com.freelanceapp.models.User;
+import com.freelanceapp.models.enums.UserRole;
 import com.freelanceapp.repositories.UserRepository;
+import com.freelanceapp.repositories.UserRoleRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserRoleRepository userRoleRepository;
+
+    @Autowired
+    private PasswordEncoder bCryptPasswordEncoder;
+
+    public Optional<User> findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public void saveUser(User user) {
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        UserRole userRole = userRoleRepository.findByRole("ADMIN");
+        user.setRoles(new HashSet<>(Collections.singletonList(userRole)));
+        userRepository.save(user);
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getEmail())
-                .password(user.getPassword())
-                .authorities(user.getRole().name())
-                .accountExpired(false)
-                .accountLocked(false)
-                .credentialsExpired(false)
-                .disabled(false)
-                .build();
+        Optional<User> user = userRepository.findByEmail(email);
+        if(user.isPresent()) {
+            List<GrantedAuthority> authorities = getUserAuthority(user.get().getRoles());
+            return buildUserForAuthentication(user.get(), authorities);
+        } else {
+            throw new UsernameNotFoundException("username not found");
+        }
+    }
+
+    private List<GrantedAuthority> getUserAuthority(Set<UserRole> userRoles) {
+        Set<GrantedAuthority> roles = new HashSet<>();
+        userRoles.forEach((role) -> {
+            roles.add(new SimpleGrantedAuthority(role.getRole()));
+        });
+
+        return new ArrayList<>(roles);
+    }
+
+    private UserDetails buildUserForAuthentication(User user, List<GrantedAuthority> authorities) {
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
     }
 }

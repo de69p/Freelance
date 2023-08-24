@@ -16,8 +16,11 @@ public class Payment {
 
     private Double amount;
 
+    private String currency; // NEW: Currency field
+
     private PaymentStatus status;
 
+    @Column(name = "payment_date")
     private Date paymentDate;
 
     @ManyToOne
@@ -25,4 +28,7 @@ public class Payment {
 
     @ManyToOne
     private User freelancer;
+
+    @ManyToOne
+    private Project project;
 }

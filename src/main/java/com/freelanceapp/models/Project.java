@@ -8,11 +8,13 @@ import java.util.Date;
 
 @Entity
 @Data
+@Table(name = "projects")
 public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
 
     private String title;
 
@@ -20,6 +22,9 @@ public class Project {
 
     private Double budget;
 
+    private String currency; // NEW: Currency field
+
+    @Column(name = "publication_date")
     private Date publicationDate;
 
     private Date deadline;
@@ -29,4 +34,6 @@ public class Project {
 
     @ManyToOne
     private User client;
+
+    private String projectImage; // NEW: Image for the project
 }

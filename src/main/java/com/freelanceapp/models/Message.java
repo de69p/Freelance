@@ -15,6 +15,7 @@ public class Message {
 
     private String text;
 
+    @Column(name = "send_date")
     private Date sendDate;
 
     @ManyToOne

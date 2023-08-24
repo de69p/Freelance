@@ -20,6 +20,7 @@ public interface UserService {
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
+    boolean existsById(Long id);
 
     UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
 }

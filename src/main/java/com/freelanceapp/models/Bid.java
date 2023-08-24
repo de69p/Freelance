@@ -15,10 +15,12 @@ public class Bid {
 
     private Double amount;
 
+    @Column(name = "delivery_date")
     private Date deliveryDate;
 
     private String description;
 
+    @Column(name = "bid_date")
     private Date bidDate;
 
     @ManyToOne

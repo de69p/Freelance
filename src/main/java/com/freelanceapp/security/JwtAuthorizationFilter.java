@@ -32,6 +32,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String jwt = authorizationHeader.substring(7);
             String username = jwtUtil.extractUsername(jwt);
+            logger.info("Attempting authorization for user: " + username);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User userDetails = (User) userDetailsService.loadUserByUsername(username);
@@ -39,9 +40,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
+        } else {
+            logger.warn("No Authorization header or Bearer token not found");
         }
 
         filterChain.doFilter(request, response);
     }
+
 }
 

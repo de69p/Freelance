@@ -12,28 +12,30 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private final AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
-        this.authenticationManager = authenticationManager;
+        super.setAuthenticationManager(authenticationManager);
         this.jwtUtil = jwtUtil;
     }
+
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        logger.info("Attempting authentication for user: " + username);
+        return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, request.getParameter("password")));
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        logger.info("Successful authentication for user: " + authResult.getName());
         String token = jwtUtil.generateToken(authResult.getName());
         response.addHeader("Authorization", "Bearer " + token);
     }
+
 }
 

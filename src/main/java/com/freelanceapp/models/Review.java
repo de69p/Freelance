@@ -7,6 +7,7 @@ import java.util.Date;
 
 @Entity
 @Data
+@Table(name = "reviews")
 public class Review {
 
     @Id
@@ -17,6 +18,7 @@ public class Review {
 
     private String text;
 
+    @Column(name = "publication_date")
     private Date publicationDate;
 
     @ManyToOne
