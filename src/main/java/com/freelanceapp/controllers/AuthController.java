@@ -3,23 +3,28 @@ package com.freelanceapp.controllers;
 import com.freelanceapp.models.User;
 import com.freelanceapp.services.UserService;
 import com.freelanceapp.utils.JwtUtil;
-import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@AllArgsConstructor
+@Controller
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private UserService userService;
+    private final UserService userService;
 
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+
+    public AuthController(UserService userService, JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody User user) {
@@ -45,5 +50,5 @@ public class AuthController {
         userService.saveUser(user);
         return ResponseEntity.ok("User registered successfully");
     }
+    
 }
-
