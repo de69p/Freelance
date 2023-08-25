@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        .menu {
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px; /* Заокруглені кути */
+            background-color: #0056b3;
+            color: white;
+            cursor: pointer;
+            text-align: left;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        .button:hover {
+            background-color: #004a99; /* Змінено колір при наведенні */
+        }
+        .button.active {
+            background-color: #999;
+            cursor: default;
+        }
+        .line {
+            width: 100%;
+            height: 1px;
+            background-color: #ccc;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <button class="button active" onclick="location.href='/home'">Available</button>
+    <button class="button" onclick="location.href='/current'">Current</button>
+    <button class="button" onclick="location.href='/revision'">Revision</button>
+    <button class="button" onclick="location.href='/dispute'">Dispute</button>
+    <button class="button" onclick="location.href='/finished'">Finished</button>
+    <button class="button" onclick="location.href='/bids'">Bids</button>
+    <div class="line"></div>
+    <button class="button" onclick="location.href='/messages'">Messages</button>
+    <div class="line"></div>
+    <button class="button" onclick="location.href='/statistics'">Statistics</button>
+    <button class="button" onclick="location.href='/finance'">Finance</button>
+</div>
+</body>
+</html>

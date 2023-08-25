@@ -10,7 +10,7 @@ $(document).ready(function () {
             data: JSON.stringify({email: email, password: password}),
             success: function (data) {
                 localStorage.setItem('token', data);
-                window.location.href = '/home'; // Redirect to home page
+                window.location.href = '/home';
             },
             error: function () {
                 $('#message').text('Invalid email or password').css('color', 'red');

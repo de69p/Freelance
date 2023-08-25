@@ -15,4 +15,9 @@ public class WebController {
     public String signUp() {
         return "signUp";
     }
+
+    @GetMapping("/home")
+    public String home() {
+        return "home";
+    }
 }
