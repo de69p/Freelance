@@ -18,6 +18,7 @@ public class Payment {
 
     private String currency; // NEW: Currency field
 
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
     @Column(name = "payment_date")

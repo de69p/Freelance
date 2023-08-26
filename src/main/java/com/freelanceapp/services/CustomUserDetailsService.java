@@ -6,8 +6,6 @@ import com.freelanceapp.models.User;
 import com.freelanceapp.models.enums.UserRole;
 import com.freelanceapp.repositories.UserRepository;
 import com.freelanceapp.repositories.UserRoleRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,14 +17,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRoleRepository userRoleRepository;
+    private final UserRoleRepository userRoleRepository;
 
-    @Autowired
-    private PasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder bCryptPasswordEncoder;
+
+    public CustomUserDetailsService(UserRepository userRepository, UserRoleRepository userRoleRepository, PasswordEncoder bCryptPasswordEncoder) {
+        this.userRepository = userRepository;
+        this.userRoleRepository = userRoleRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
     public Optional<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -53,9 +54,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private List<GrantedAuthority> getUserAuthority(Set<UserRole> userRoles) {
         Set<GrantedAuthority> roles = new HashSet<>();
-        userRoles.forEach((role) -> {
-            roles.add(new SimpleGrantedAuthority(role.getRole()));
-        });
+        userRoles.forEach((role) -> roles.add(new SimpleGrantedAuthority(role.getRole())));
 
         return new ArrayList<>(roles);
     }

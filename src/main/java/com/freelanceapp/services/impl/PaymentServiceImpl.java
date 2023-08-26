@@ -5,7 +5,6 @@ import com.freelanceapp.models.enums.PaymentStatus;
 import com.freelanceapp.repositories.PaymentRepository;
 import com.freelanceapp.services.PaymentService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -26,7 +26,7 @@ $('#signUpForm').submit(function (e) {
     const password = $('#signUpPassword').val();
     $.ajax({
         url: "/api/auth/signUp",
-        method: "POST", // Змінено на POST
+        method: "POST",
         contentType: "application/json",
         data: JSON.stringify({email: email, password: password}),
         success: function (data) {

@@ -1,6 +1,7 @@
 package com.freelanceapp.models;
 
 import com.freelanceapp.models.enums.UserRole;
+import com.freelanceapp.models.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -34,7 +35,8 @@ public class User {
 
     private Double rating;
 
-    private String status; // NEW: User status (e.g., ACTIVE, INACTIVE, BLOCKED)
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
     @Column(name = "registration_date")
     private Date registrationDate;
